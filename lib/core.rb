@@ -9,8 +9,22 @@ class Core
   # If we don't want repeats, we would do:
   # @combo = COLORS.sample(4) instead. Maybe make this a choosable option in future?
   def initialize
-    @combo = Array.new(4) { COLORS.sample }
+    puts 'Would you like to enable repeats? (I.e same color may appear more than once in the secret code) y/n'
+    answer = gets.chomp.downcase
+    loop do
+      if answer == 'n'
+        @combo = COLORS.sample(4)
+        break
+      elsif answer == 'y'
+        @combo = Array.new(4) { COLORS.sample }
+        break
+      else
+        puts 'Invalid input. Use y for yes and n for no.'
+        answer = gets.chomp.downcase
+      end
+    end
     p @combo
+    puts 'Available colors: purple, orange, yellow, green, blue, white.'
   end
 
   def evaluate(guess)
@@ -45,15 +59,27 @@ class Core
   end
 
   def game
-    guess = %w[purple orange purple green]
     turns_played = 0
     loop do
       if turns_played == MAX_TURNS
         puts 'Game over!'
+        p @combo
         break
       end
 
-      guess = Array.new(4) { COLORS.sample }
+      puts 'Enter your guess (4 colors separated by spaces):'
+      guess = gets.chomp.downcase.split
+      loop do
+        if guess.length != @combo.length
+          puts 'Wrong number of colors! Try again: '
+          guess = gets.chomp.downcase.split
+        elsif guess.any? { |color| !COLORS.include?(color) }
+          puts 'One or more invalid/misspelled colors! Try again: '
+          guess = gets.chomp.downcase.split
+        else
+          break
+        end
+      end
 
       if guess == @combo
         puts 'You win!'
